@@ -1,0 +1,16 @@
+[package]
+name = "client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+vlc-rs = "0.3"
+chrono = { version = "0.4.38", features = ["serde"] }
+toml = "0.5.2"
+serde = "1.0"
+serde_derive = "1.0"
+gethostname = "0.5"
+glob = "0.3.1"
+toml-datetime-compat = { version = "0.3.0", features = ["chrono"] }
+itertools = "0.13"
+rand = "0.8"

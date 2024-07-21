@@ -1,0 +1,5 @@
+[media]
+folder = "media"
+
+[node]
+name = "pc101"
