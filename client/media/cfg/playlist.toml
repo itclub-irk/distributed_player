@@ -1,23 +1,27 @@
-working_hours = [
+[working_hours]
+schedule = [
   [08:00:00, 20:00:00],
   [08:00:00, 20:00:00],
   [08:00:00, 20:00:00],
   [08:00:00, 20:00:00],
   [08:00:00, 20:00:00],
   [08:00:00, 20:00:00],
-  [08:00:00, 20:00:00],
+  [10:00:00, 18:00:00],
 ]
+exceptions = {2024-07-21 = [10:00:00, 20:00:00], 2024-07-14 = [10:00:00, 17:00:00]}
 
-working_hours_exceptions = {2024-07-13 = [10:00:00, 17:00:00], 2024-07-14 = [10:00:00, 17:00:00]}
-
+[music]
 shuffle = true
-
-music_schedule = [
+schedule = [
   [1970-01-01, 1970-12-31, [
-    "half_life_2",
+    "music",
   ]]
 ]
 
-advertizement = {00:10:00 = ["ad_1",], 00:20:00 = ["ad_1", "ad_2",], 00:40:00 = ["ad_1", "ad_2", "ad_3",]}
+[advertizement]
+schedule = {"00:10:00" = ["ad_1",], "00:20:00" = ["ad_2",], "00:40:00" = ["ad_3",]}
+start_jingle="jingle/open.mp3" 
+end_jingle="jingle/close.mp3"
 
-time_announcement_folder = "time_announcement"
+[time_announcement]
+folder = "time_announcement"

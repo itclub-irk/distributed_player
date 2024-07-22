@@ -2,25 +2,21 @@ use crate::{
     config::NodeConfig,
     playlist::{self, Playlist},
 };
+use chrono::{prelude::*, Duration};
 use glob::glob;
 use rand::prelude::*;
 use std::{
-    cell::RefCell,
-    ops::Deref,
     path::{Path, PathBuf},
     thread,
 };
-
-use std::sync::{mpsc::channel, Arc, Mutex};
-use vlc::MediaPlayerAudioEx;
+use vlc::{Media, MediaPlayerAudioEx};
 
 #[derive(Debug)]
 pub enum PlayerState {
     Stopped,
-    // MusicPlaying(Vec<PathBuf>, usize),
-    MusicPlaying,
-    Advertizement(Vec<PathBuf>, usize),
-    TimeAnnouncement(u8),
+    MusicPlaying(Vec<PathBuf>),
+    Advertizement(Vec<PathBuf>),
+    TimeAnnouncement(PathBuf),
 }
 
 pub struct Player<'a> {
@@ -28,6 +24,8 @@ pub struct Player<'a> {
     media_player: vlc::MediaPlayer,
     node_config: &'a NodeConfig,
     status: PlayerState,
+    playlist: Option<Playlist>,
+    next_track_index: usize,
     random_generator: ThreadRng,
 }
 
@@ -41,74 +39,165 @@ impl Player<'_> {
             media_player,
             status: PlayerState::Stopped,
             node_config: node_config,
+            next_track_index: 0,
+            playlist: None,
             random_generator: thread_rng(),
         }
     }
 
-    pub fn play(&mut self) {
+    pub fn start(&mut self) {
         loop {
+            self.dispatch();
 
-            
-        }
-    }
+            if let PlayerState::MusicPlaying(music_files) = &self.status {
+                let next_track_path = &music_files[self.next_track_index];
+                self.play_media_non_blocking(next_track_path.as_path());
 
-    fn dispatch(&mut self) {
-
-    }
-
-    pub fn play1(&mut self) {
-        let player_state = Arc::new(Mutex::new(PlayerState::Stopped));
-
-        loop {
-            let player_state_for_callback = Arc::clone(&player_state);
-            let pl = self.read_playlist();
-            let media_files = self.load_media_files_list_from_dirs(&pl.folders.unwrap());
-
-            let mut next_file = &media_files[0];
-            if pl.shuffle.unwrap_or(false) {
-                next_file = media_files.choose(&mut self.random_generator).unwrap();
-            }
-
-            let media = vlc::Media::new_path(&self.vlc_instance, next_file).unwrap();
-            self.media_player.set_media(&media);
-            self.media_player.set_volume(100).unwrap();
-            self.media_player.play().unwrap();
-
-            {
-                let mut s = player_state.lock().unwrap();
-                *s = PlayerState::MusicPlaying;
-            }
-
-            // let (tx, _rx) = channel::<()>();
-
-            // let em = media.event_manager();
-            // let _ = em.attach(vlc::EventType::MediaStateChanged, move |e, _| match e {
-            //     vlc::Event::MediaStateChanged(s) => {
-            //         if s == vlc::State::Ended || s == vlc::State::Error {
-            //             let mut s = player_state_for_callback.lock().unwrap();
-            //             *s = PlayerState::Stopped;
-            //             tx.send(()).unwrap();
-            //         }
-            //     }
-            //     _ => (),
-            // });
-
-            loop {
-                // {
-                //     let s = player_state.lock().unwrap();
-                //     if let PlayerState::Stopped = s.deref() {
-                //         println!("Track ended, next track");
-                //         break;
-                //     }
-                // }
-                thread::sleep(std::time::Duration::from_secs(1));
-                if !self.media_player.is_playing() {
-                    println!("Track ended, switch to next track");
-                    break;
+                self.next_track_index += 1;
+                if self.next_track_index == music_files.len() {
+                    self.next_track_index = 0;
                 }
-                println!("ping");
+            } else if let PlayerState::Advertizement(advertizement_files) = &self.status {
+                let mut start_jingle_file_path: Option<String> = None;
+                let mut end_jingle_file_path: Option<String> = None;
+
+                if let Some(pl) = self.playlist.as_ref() {
+                    (start_jingle_file_path, end_jingle_file_path) =
+                        pl.get_advertizement_jingles_file_path();
+                }
+
+                if let Some(p) = start_jingle_file_path {
+                    self.play_media_blocking(Path::new(&p));
+                }
+                for advert in advertizement_files.iter() {
+                    self.play_media_blocking(&advert);
+                }
+                if let Some(p) = end_jingle_file_path {
+                    self.play_media_blocking(Path::new(&p));
+                }
+                self.status = PlayerState::Stopped;
+            } else if let PlayerState::TimeAnnouncement(announcement_file_path) = &self.status {
+                self.play_media_blocking(&announcement_file_path);
+                self.status = PlayerState::Stopped;
             }
         }
+    }
+
+    /// Changes player status using playlist rules
+    fn dispatch(&mut self) {
+        match &self.status {
+            PlayerState::Stopped => {
+                let pl = self.read_playlist();
+
+                let current_datetime = Local::now().naive_local();
+
+                if !pl.is_working_time(current_datetime) {
+                    wait_seconds(1);
+                    return;
+                }
+                let music_folders = pl.get_music_folders_for_date(current_datetime.date());
+
+                let music_files = self.load_media_files_list_from_dirs(&music_folders);
+                let total_music_files = music_files.len();
+
+                self.status = PlayerState::MusicPlaying(music_files);
+
+                if let Some(music) = pl.music.as_ref() {
+                    if let Some(shuffle) = music.shuffle.as_ref() {
+                        if *shuffle {
+                            self.next_track_index =
+                                self.random_generator.gen_range(0..total_music_files);
+                        }
+                    }
+                }
+                self.playlist = Some(pl);
+            }
+
+            PlayerState::MusicPlaying(_) => {
+                let mut prev_dt: NaiveDateTime = Local::now().naive_local() - Duration::seconds(1);
+                loop {
+                    wait_seconds(1);
+
+                    // track is over
+                    if !self.media_player.is_playing() {
+                        self.status = PlayerState::Stopped;
+                        return;
+                    };
+
+                    let dt = Local::now().naive_local();
+                    if let Some(pl) = self.playlist.as_ref() {
+                        // working time is over
+                        if !pl.is_working_time(dt) {
+                            self.fade_out();
+                            return;
+                        }
+
+                        // it's advertizement
+                        let advertizement_folders = pl.get_advertizement_folders_for_datetime(dt);
+                        if advertizement_folders.len() > 0 {
+                            let advertizement_files =
+                                self.load_media_files_list_from_dirs(&advertizement_folders);
+                            self.fade_out();
+                            self.status = PlayerState::Advertizement(advertizement_files);
+                            return;
+                        }
+
+                        // it's time announcement
+                        if prev_dt.hour() != dt.hour() {
+                            if let Some(announcement_file) =
+                                pl.get_announcement_file_path_for_time(dt)
+                            {
+                                self.fade_out();
+                                self.status = PlayerState::TimeAnnouncement(announcement_file);
+                                return;
+                            }
+                        }
+                        prev_dt = dt;
+                    }
+                }
+            }
+            _ => wait_seconds(1),
+        }
+    }
+
+    fn play_media_blocking(&self, path: &Path) {
+        self.play_media_non_blocking(path);
+        loop {
+            wait_seconds(1);
+            if !self.media_player.is_playing() {
+                break;
+            }
+        }
+    }
+
+    fn play_media_non_blocking(&self, path: &Path) {
+        let media_folder = self.node_config.media.folder.as_str();
+        let media: Media;
+
+        if !path.starts_with(media_folder) {
+            media = vlc::Media::new_path(
+                &self.vlc_instance,
+                &Path::join(Path::new(media_folder), path),
+            )
+            .unwrap();
+        } else {
+            media = vlc::Media::new_path(&self.vlc_instance, path).unwrap();
+        }
+
+        self.media_player.set_media(&media);
+        self.media_player.set_volume(100).unwrap();
+        self.media_player.play().unwrap();
+    }
+
+    fn fade_out(&self) {
+        if !self.media_player.is_playing() {
+            return;
+        }
+        for vol in (0..100).step_by(10).rev() {
+            self.media_player.set_volume(vol).unwrap();
+            thread::sleep(::std::time::Duration::from_millis(500));
+        }
+        self.media_player.pause();
     }
 
     fn read_playlist(&self) -> Playlist {
@@ -117,7 +206,7 @@ impl Player<'_> {
         // wait for playlist
         while playlist.is_none() {
             playlist = playlist::Playlist::read_from_config(self.node_config);
-            thread::sleep(std::time::Duration::from_secs(1));
+            wait_seconds(1);
         }
         return playlist.unwrap();
     }
@@ -134,7 +223,7 @@ impl Player<'_> {
                 ))
             }
             if media_list.len() == 0 {
-                thread::sleep(std::time::Duration::from_secs(1));
+                wait_seconds(1);
             } else {
                 break;
             }
@@ -142,6 +231,10 @@ impl Player<'_> {
 
         media_list
     }
+}
+
+fn wait_seconds(seconds: u64) {
+    thread::sleep(std::time::Duration::from_secs(seconds));
 }
 
 fn get_supported_file_wildcards(path: &Path) -> Vec<String> {
@@ -168,5 +261,6 @@ fn load_media_files_list_from_dir(path: &Path) -> Vec<PathBuf> {
             Err(_) => continue,
         }
     }
+
     media_list
 }
