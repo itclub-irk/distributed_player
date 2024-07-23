@@ -4,6 +4,7 @@ use crate::{
 };
 use chrono::{prelude::*, Duration};
 use glob::glob;
+use log;
 use rand::prelude::*;
 use std::{
     path::{Path, PathBuf},
@@ -51,6 +52,7 @@ impl Player<'_> {
 
             if let PlayerState::MusicPlaying(music_files) = &self.status {
                 let next_track_path = &music_files[self.next_track_index];
+                log::info!("start {:?}", next_track_path);
                 self.play_media_non_blocking(next_track_path.as_path());
 
                 self.next_track_index += 1;
@@ -58,6 +60,8 @@ impl Player<'_> {
                     self.next_track_index = 0;
                 }
             } else if let PlayerState::Advertizement(advertizement_files) = &self.status {
+                log::info!("start adv block");
+
                 let mut start_jingle_file_path: Option<String> = None;
                 let mut end_jingle_file_path: Option<String> = None;
 
@@ -70,11 +74,14 @@ impl Player<'_> {
                     self.play_media_blocking(Path::new(&p));
                 }
                 for advert in advertizement_files.iter() {
+                    log::info!("start adv {:?}", advert);
                     self.play_media_blocking(&advert);
+                    log::info!("end adv {:?}", advert);
                 }
                 if let Some(p) = end_jingle_file_path {
                     self.play_media_blocking(Path::new(&p));
                 }
+                log::info!("end adv block");
                 self.status = PlayerState::Stopped;
             } else if let PlayerState::TimeAnnouncement(announcement_file_path) = &self.status {
                 self.play_media_blocking(&announcement_file_path);
