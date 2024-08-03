@@ -68,7 +68,17 @@ $ cargo run
 
 ### Windows-based host
 
-Not compiled yet
+Clone this repo;
+
+Install rust toolchain using [rustup](https://rustup.rs/);
+
+If you choose using GNU utilities, install [MinGW](https://sourceforge.net/projects/mingw/);
+
+Download and unpack VLC media player release [here](https://www.videolan.org/vlc/download-windows.html);
+
+Copy `libvlc.dll` and `libvlccore.dll` from VLC player folder into `target\debug\deps` directory;
+
+Cargo run.
 
 ## How to contribute
 

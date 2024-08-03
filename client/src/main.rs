@@ -13,7 +13,6 @@ mod playlist;
 fn main() {
     let conf = config::NodeConfig::read_from_file("node_config.toml");
     configure_logger(&conf);
-
     player::Player::new(&conf).start();
 }
 

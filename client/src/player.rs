@@ -76,7 +76,6 @@ impl Player<'_> {
                 for advert in advertizement_files.iter() {
                     log::info!("start adv {:?}", advert);
                     self.play_media_blocking(&advert);
-                    log::info!("end adv {:?}", advert);
                 }
                 if let Some(p) = end_jingle_file_path {
                     self.play_media_blocking(Path::new(&p));
@@ -102,7 +101,12 @@ impl Player<'_> {
                     wait_seconds(1);
                     return;
                 }
+                
                 let music_folders = pl.get_music_folders_for_date(current_datetime.date());
+                if music_folders.len() == 0 {
+                    wait_seconds(1);
+                    return;
+                }
 
                 let music_files = self.load_media_files_list_from_dirs(&music_folders);
                 let total_music_files = music_files.len();
