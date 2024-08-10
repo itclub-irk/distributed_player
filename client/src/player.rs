@@ -101,7 +101,7 @@ impl Player<'_> {
                     wait_seconds(1);
                     return;
                 }
-                
+
                 let music_folders = pl.get_music_folders_for_date(current_datetime.date());
                 if music_folders.len() == 0 {
                     wait_seconds(1);
@@ -140,6 +140,7 @@ impl Player<'_> {
                         // working time is over
                         if !pl.is_working_time(dt) {
                             self.fade_out();
+                            self.status = PlayerState::Stopped;
                             return;
                         }
 
