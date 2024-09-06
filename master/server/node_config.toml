@@ -1,0 +1,8 @@
+[media]
+folder = "media"
+
+[auth]
+password_hash = ""
+jwt_secret = ""
+jwt_maxage = 3600
+jwt_expires_in = "1h"
