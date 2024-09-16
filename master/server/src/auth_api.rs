@@ -33,6 +33,11 @@ pub struct LoginUserSchema {
     pub password: String,
 }
 
+/// Just return OK status code if user was logged in, otherwise returns unauthorized code
+pub async fn is_logged_in() -> &'static str {
+    ""
+}
+
 /// Authentication checking middleware
 pub async fn auth_required(
     cookie_jar: CookieJar,
