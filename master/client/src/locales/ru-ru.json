@@ -1,0 +1,43 @@
+{
+  "messages": {
+    "wrong_password": "Неверный пароль",
+    "success_login": "Осуществлен успешный вход",
+    "validation_error": "Данные формы не валидны",
+    "data_saved_success": "Данные формы успешно сохранены"
+  },
+  "controls": {
+    "node_filter": "Фильтр...",
+    "add_node": "Добавить",
+    "enter_master_node_password": "Введите пароль от панели управления",
+    "login": "Вход",
+    "password": "Пароль",
+    "default_playlist": "Общее расписание",
+    "save": "Сохранить",
+    "add": "Добавить",
+    "delete": "Удалить"
+  },
+  "menus": {
+    "schedule": "Расписание",
+    "files": "Файлы",
+    "logs": "Логи",
+    "logout": "Выход"
+  },
+  "labels": {
+    "node_list": "Настройки устройств",
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота",
+    "sunday": "Воскресенье",
+    "working_hours": "Режим работы",
+    "use_default_schedule": "Взять из общего расписания",
+    "fills_working_hours": "Укажите в форме ниже режим работы плеера для каждого дня недели",
+    "working_hours_exceptions": "Исключения из режима работы",
+    "fills_working_hours_exceptions": "Добавьте исключения, чтобы определить режим работы плеера для определенной даты",
+    "date": "Дата",
+    "start_time": "Время начала",
+    "end_time": "Время окончания"
+  }
+}

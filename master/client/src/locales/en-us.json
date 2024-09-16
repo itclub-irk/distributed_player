@@ -1,0 +1,43 @@
+{
+  "messages": {
+    "wrong_password": "Entered wrong password",
+    "success_login": "Successful login completed",
+    "validation_error": "Form data are not valid",
+    "data_saved_success": "Form data saved successfully"
+  },
+  "controls": {
+    "node_filter": "Filter...",
+    "add_node": "Add",
+    "password": "Password",
+    "login": "Login",
+    "enter_master_node_password": "Enter master node password",
+    "default_playlist": "Default playlist",
+    "save": "Save",
+    "add": "Добавить",
+    "delete": "Удалить"
+  },
+  "menus": {
+    "schedule": "Schedule",
+    "files": "Files",
+    "logs": "Logs",
+    "logout": "Logout"
+  },
+  "labels": {
+    "node_list": "Node list",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "working_hours": "Working hours",
+    "use_default_schedule": "Use default schedule",
+    "fills_working_hours": "Fills the player's working hours for each day of the week in the form below.",
+    "working_hours_exceptions": "Working hours exceptions",
+    "fills_working_hours_exceptions": "Fills working hours exceptions",
+    "date": "Date",
+    "start_time": "Start time",
+    "end_time": "End time"
+  }
+}
