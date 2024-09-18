@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import PlaylistWorkingHours from '../components/PlaylistWorkingHours.vue'
 import { useAppStore } from '@/stores/app'
-import { useRoute, useRouter } from 'vue-router'
-import { computed, onMounted, ref, watch } from 'vue'
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
 import { i18n } from '@/main'
 import { getPlaylistByName, updatePlaylist } from '@/services/playlistService'
 import type { Playlist } from '@/models/Playlist'
+import PlaylistMusic from '@/components/PlaylistMusic.vue'
 
 const appStore = useAppStore()
 const route = useRoute()
@@ -95,28 +96,41 @@ async function submit() {
 }
 </script>
 <template>
-  <form class="config_form" @submit.prevent="submit">
-    <div class="row">
-      <div class="col-8">
-        <h2>{{ playlistName }}</h2>
+  <div>
+    <form class="config_form" @submit.prevent="submit">
+      <div class="row">
+        <div class="col-8">
+          <h2>{{ playlistName }}</h2>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-8">
-        <PlaylistWorkingHours
-          ref="workingHours"
-          :workingHours="playlist.working_hours"
-          :defaultWorkingHours="defaultPlaylist.working_hours"
-          :isDefaultMode="isDefaultMode"
-        ></PlaylistWorkingHours>
+      <div class="row">
+        <div class="col-8">
+          <PlaylistWorkingHours
+            ref="workingHours"
+            :workingHours="playlist.working_hours"
+            :defaultWorkingHours="defaultPlaylist.working_hours"
+            :isDefaultMode="isDefaultMode"
+          ></PlaylistWorkingHours>
+        </div>
       </div>
-    </div>
 
-    <div class="row">
-      <div class="col-8">
-        <button type="submit" class="button primary">{{ $t('controls.save') }}</button>
+      <div class="row">
+        <div class="col-8">
+          <PlaylistMusic
+            ref="music"
+            :music="playlist.music"
+            :defaultMusic="defaultPlaylist.music"
+            :isDefaultMode="isDefaultMode"
+          ></PlaylistMusic>
+        </div>
       </div>
-    </div>
-  </form>
+
+      <div class="row">
+        <div class="col-8">
+          <button type="submit" class="button primary">{{ $t('controls.save') }}</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </template>
 <style scoped></style>

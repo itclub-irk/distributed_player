@@ -7,7 +7,11 @@ import NodeList from '../components/NodeList.vue'
       <NodeList></NodeList>
     </div>
     <div class="col main">
-      <RouterView />
+      <router-view v-slot="{ Component }">
+        <transition mode="out-in" :appear="true">
+          <component :is="Component" :key="$route.fullPath" />
+        </transition>
+      </router-view>
     </div>
   </div>
 </template>

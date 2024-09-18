@@ -7,6 +7,7 @@ import type {
 } from '@/models/Playlist'
 import { computed, defineExpose, ref, watch } from 'vue'
 import PlaylistWorkingHoursScheduleInput from './PlaylistWorkingHoursScheduleInput.vue'
+import AppConfirmDialog from './AppConfirmDialog.vue'
 
 const DEFAULT_WORKING_HOURS_START_TIME = '08:00:00'
 const DEFAULT_WORKINT_HOURS_END_TIME = '20:00:00'
@@ -19,6 +20,7 @@ const props = defineProps<{
   isDefaultMode: boolean
 }>()
 const useDefaultWorkingHours = ref(true)
+const confirmDialog = ref<typeof AppConfirmDialog>()
 
 function getWorkingHoursScheduleElement(
   startTime: string,
@@ -95,8 +97,9 @@ function getDayIndex(pairIndex: number, colNumber: number): number {
   return 2 * pairIndex + colNumber
 }
 
-function deleteExceptionRow(rowIndex: number) {
-  rawWorkingHoursExceptions.value.splice(rowIndex, 1)
+async function deleteExceptionRow(rowIndex: number) {
+  if (confirmDialog.value && (await confirmDialog.value.show()))
+    rawWorkingHoursExceptions.value.splice(rowIndex, 1)
 }
 
 function addExceptionRow() {
@@ -123,40 +126,43 @@ function addExceptionRow() {
         ></PlaylistWorkingHoursScheduleInput>
       </div>
     </div>
-  </div>
 
-  <h3>{{ $t('labels.working_hours_exceptions') }}</h3>
-  <p>{{ $t('labels.fills_working_hours_exceptions') }}</p>
-  <div class="row">
-    <div class="col">
-      <label>{{ $t('labels.date') }}</label>
+    <h3>{{ $t('labels.working_hours_exceptions') }}</h3>
+    <p>{{ $t('labels.fills_working_hours_exceptions') }}</p>
+    <div class="row" v-if="rawWorkingHoursExceptions.length">
+      <div class="col">
+        <label>{{ $t('labels.date') }}</label>
+      </div>
+      <div class="col">
+        <label>{{ $t('labels.start_time') }}</label>
+      </div>
+      <div class="col">
+        <label>{{ $t('labels.end_time') }}</label>
+      </div>
+      <div class="col"></div>
     </div>
-    <div class="col">
-      <label>{{ $t('labels.start_time') }}</label>
+
+    <div class="row" v-for="(exception, index) of rawWorkingHoursExceptions" :key="index">
+      <div class="col">
+        <input type="date" v-model="exception[0]" />
+      </div>
+      <div class="col">
+        <input type="time" v-model="exception[1]" />
+      </div>
+      <div class="col">
+        <input type="time" v-model="exception[2]" />
+      </div>
+      <div class="col">
+        <button type="button" class="button error" @click="deleteExceptionRow(index)">
+          {{ $t('controls.delete') }}
+        </button>
+      </div>
     </div>
-    <div class="col">
-      <label>{{ $t('labels.end_time') }}</label>
-    </div>
-    <div class="col"></div>
+
+    <button type="button" class="button primary outline" @click="addExceptionRow">
+      {{ $t('controls.add') }}
+    </button>
   </div>
-  <div class="row" v-for="(exception, index) of rawWorkingHoursExceptions">
-    <div class="col">
-      <input type="date" v-model="exception[0]" />
-    </div>
-    <div class="col">
-      <input type="time" v-model="exception[1]" />
-    </div>
-    <div class="col">
-      <input type="time" v-model="exception[2]" />
-    </div>
-    <div class="col">
-      <button type="button" class="button error" @click="deleteExceptionRow(index)">
-        {{ $t('controls.delete') }}
-      </button>
-    </div>
-  </div>
-  <button type="button" class="button primary outline" @click="addExceptionRow">
-    {{ $t('controls.add') }}
-  </button>
+  <AppConfirmDialog ref="confirmDialog"></AppConfirmDialog>
 </template>
 <style scoped></style>

@@ -13,8 +13,15 @@
     "enter_master_node_password": "Enter master node password",
     "default_playlist": "Default playlist",
     "save": "Save",
-    "add": "Добавить",
-    "delete": "Удалить"
+    "add": "Add",
+    "delete": "Delete",
+    "play_in_order": "Play in order",
+    "shuffle": "Shuffle",
+    "add_directory": "Add directory",
+    "delete_interval": "Delete interval",
+    "add_interval": "Add interval",
+    "yes": "Yes",
+    "no": "No"
   },
   "menus": {
     "schedule": "Schedule",
@@ -38,6 +45,17 @@
     "fills_working_hours_exceptions": "Fills working hours exceptions",
     "date": "Date",
     "start_time": "Start time",
-    "end_time": "End time"
+    "end_time": "End time",
+    "shuffle_mode_description": "When shuffle mode is enabled, a random file will be selected for playback each time",
+    "music": "Music",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "interval": "Interval",
+    "directories": "Directories",
+    "music_schedule_description": "Add playback intervals and directories with music files for each interval. The interval with the year 1970 will be valid every year",
+    "no_intervals_added": "No intervals added",
+    "no_directories_added": "No directories added",
+    "confirm_action": "Confirm action",
+    "are_you_shure_you_want_to_do_this": "Are you shure you want to do this"
   }
 }

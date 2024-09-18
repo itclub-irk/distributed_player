@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Music, MusicScheduleElement } from '@/models/Playlist'
-import PlaylistMusicScheduleInput from './PlaylistMusicScheduleInput.vue'
-import { ref, watch } from 'vue'
+
+import { computed, ref, watch } from 'vue'
+import AppConfirmDialog from '@/components/AppConfirmDialog.vue'
 
 const props = defineProps<{
   music?: Music
@@ -11,6 +12,7 @@ const props = defineProps<{
 
 const useDefaultMusic = ref(true)
 const rawMusic = ref<Music>({ shuffle: false, schedule: [] })
+const confirmDialog = ref<typeof AppConfirmDialog>()
 
 watch(
   () => props.music,
@@ -25,6 +27,30 @@ watch(
   { deep: true }
 )
 
+const invalidScheduleDateIndexes = computed(() => {
+  const result: { [i: number]: boolean } = {}
+  const schedule = rawMusic.value.schedule
+  for (let index = 0; index < schedule.length; index++) {
+    const startDate = new Date(schedule[index][0].$__toml_private_datetime)
+    const endDate = new Date(schedule[index][1].$__toml_private_datetime)
+    if (endDate >= startDate) continue
+
+    result[index] = true
+  }
+  return result
+})
+
+const isDataValid = computed(() => {
+  return Object.keys(invalidScheduleDateIndexes).length === 0
+})
+const cleanedData = computed(() => {
+  if (!isDataValid.value) return props.music
+
+  if (useDefaultMusic.value) return undefined
+
+  return rawMusic.value
+})
+
 function addScheduleElement() {
   const initialDate = '1970-01-01'
   rawMusic.value.schedule.push([
@@ -34,16 +60,18 @@ function addScheduleElement() {
   ])
 }
 
-function deleteScheduleElement(elementIndex: number) {
-  rawMusic.value.schedule.splice(elementIndex, 1)
+async function deleteScheduleElement(elementIndex: number) {
+  if (confirmDialog.value && (await confirmDialog.value.show()))
+    rawMusic.value.schedule.splice(elementIndex, 1)
 }
 
 function addDir(scheduleElement: MusicScheduleElement) {
   scheduleElement[2].push('')
 }
 
-function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number) {
-  scheduleElement[2].splice(dirIndex, 1)
+async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number) {
+  if (confirmDialog.value && (await confirmDialog.value.show()))
+    scheduleElement[2].splice(dirIndex, 1)
 }
 </script>
 <template>
@@ -86,11 +114,12 @@ function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number) {
     <p>
       {{ $t('labels.music_schedule_description') }}
     </p>
-    <div class="row" v-if="rawMusic.schedule.length == 0">
-      <div class="col text-light">{{ $t('labels.no_intervals_added') }}</div>
-    </div>
 
-    <div class="row" v-for="(scheduleElement, index) of rawMusic.schedule">
+    <div
+      class="row"
+      v-for="(scheduleElement, index) of rawMusic.schedule"
+      v-if="rawMusic.schedule.length"
+    >
       <div class="col">
         <h4>{{ $t('labels.interval') }} №{{ index + 1 }}</h4>
         <div class="row">
@@ -99,18 +128,23 @@ function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number) {
         </div>
         <div class="row">
           <div class="col">
-            <input type="date" v-model="scheduleElement[0].$__toml_private_datetime" />
+            <input
+              type="date"
+              v-model="scheduleElement[0].$__toml_private_datetime"
+              :class="{ error: invalidScheduleDateIndexes[index] }"
+            />
           </div>
           <div class="col">
-            <input type="date" v-model="scheduleElement[1].$__toml_private_datetime" />
+            <input
+              type="date"
+              v-model="scheduleElement[1].$__toml_private_datetime"
+              :class="{ error: invalidScheduleDateIndexes[index] }"
+            />
           </div>
         </div>
-        <p>{{ $t('labels.directories') }}</p>
+        <p v-if="scheduleElement[2].length">{{ $t('labels.directories') }}</p>
         <div class="row">
           <div class="col">
-            <p v-if="!scheduleElement[2].length" class="text-light">
-              {{ $t('labels.no_directories_added') }}
-            </p>
             <p class="grouped" v-for="(dir, dirIndex) of scheduleElement[2]">
               <input type="text" v-model="scheduleElement[2][dirIndex]" />
               <button
@@ -145,5 +179,6 @@ function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number) {
       </div>
     </div>
   </div>
+  <AppConfirmDialog ref="confirmDialog"></AppConfirmDialog>
 </template>
 <style scoped></style>

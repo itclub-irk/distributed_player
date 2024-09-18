@@ -43,7 +43,13 @@ async function logout() {
       </div>
     </nav>
   </header>
-  <RouterView v-cloak />
+
+  <router-view v-slot="{ Component }">
+    <transition mode="out-in">
+      <component :is="Component" />
+    </transition>
+  </router-view>
+
   <AppNotification></AppNotification>
 </template>
 
