@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Music, MusicScheduleElement } from '@/models/Playlist'
-
+import { i18n } from '@/main'
 import { computed, ref, watch } from 'vue'
 import AppConfirmDialog from '@/components/AppConfirmDialog.vue'
 
@@ -22,27 +22,27 @@ watch(
     if (!props.music) return
 
     rawMusic.value = JSON.parse(JSON.stringify(props.music))
-    console.log(rawMusic.value)
   },
   { deep: true }
 )
 
-const invalidScheduleDateIndexes = computed(() => {
-  const result: { [i: number]: boolean } = {}
+const validationErrors = computed(() => {
+  const result: { [i: number]: string } = {}
   const schedule = rawMusic.value.schedule
   for (let index = 0; index < schedule.length; index++) {
     const startDate = new Date(schedule[index][0].$__toml_private_datetime)
     const endDate = new Date(schedule[index][1].$__toml_private_datetime)
     if (endDate >= startDate) continue
 
-    result[index] = true
+    result[index] = i18n.global.t('messages.start_date_must_not_be_greater_then_end_date')
   }
   return result
 })
 
 const isDataValid = computed(() => {
-  return Object.keys(invalidScheduleDateIndexes).length === 0
+  return Object.keys(validationErrors.value).length === 0
 })
+
 const cleanedData = computed(() => {
   if (!isDataValid.value) return props.music
 
@@ -50,6 +50,8 @@ const cleanedData = computed(() => {
 
   return rawMusic.value
 })
+
+defineExpose({ isDataValid, cleanedData })
 
 function addScheduleElement() {
   const initialDate = '1970-01-01'
@@ -131,14 +133,16 @@ async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number
             <input
               type="date"
               v-model="scheduleElement[0].$__toml_private_datetime"
-              :class="{ error: invalidScheduleDateIndexes[index] }"
+              :class="{ error: validationErrors[index] }"
+              :title="validationErrors[index]"
             />
           </div>
           <div class="col">
             <input
               type="date"
               v-model="scheduleElement[1].$__toml_private_datetime"
-              :class="{ error: invalidScheduleDateIndexes[index] }"
+              :class="{ error: validationErrors[index] }"
+              :title="validationErrors[index]"
             />
           </div>
         </div>

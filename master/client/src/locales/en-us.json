@@ -3,7 +3,10 @@
     "wrong_password": "Entered wrong password",
     "success_login": "Successful login completed",
     "validation_error": "Form data are not valid",
-    "data_saved_success": "Form data saved successfully"
+    "data_saved_success": "Form data saved successfully",
+    "start_date_must_not_be_greater_then_end_date": "The start date must not be greater than the end date of the interval",
+    "start_time_must_not_be_greater_then_end_time": "The start time must not be greater than the end time",
+    "required_field": "Required field"
   },
   "controls": {
     "node_filter": "Filter...",

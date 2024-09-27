@@ -6,6 +6,7 @@ import { i18n } from '@/main'
 const props = defineProps<{
   workingHoursSchedule: WorkingHoursSchedule
   dayIndex: number
+  validationError?: string
 }>()
 
 const label = computed(() => {
@@ -26,10 +27,6 @@ const label = computed(() => {
 
   return t(d)
 })
-
-function isDataValid(data: string) {
-  return data
-}
 </script>
 <template>
   <span>
@@ -38,12 +35,14 @@ function isDataValid(data: string) {
       <input
         type="time"
         v-model="workingHoursSchedule[dayIndex][0].$__toml_private_datetime"
-        :class="{ error: !isDataValid(workingHoursSchedule[dayIndex][0].$__toml_private_datetime) }"
+        :class="{ error: validationError }"
+        :title="validationError"
       />
       <input
         type="time"
         v-model="workingHoursSchedule[dayIndex][1].$__toml_private_datetime"
-        :class="{ error: !isDataValid(workingHoursSchedule[dayIndex][1].$__toml_private_datetime) }"
+        :class="{ error: validationError }"
+        :title="validationError"
       />
     </p>
   </span>

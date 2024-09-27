@@ -21,6 +21,7 @@ const defaultPlaylist = ref<Playlist>({})
 const useDefaultWorkingHours = ref(true)
 
 const workingHours = ref<typeof PlaylistWorkingHours>()
+const music = ref<typeof PlaylistMusic>()
 
 function redirectToDefaultPlaylist() {
   router.push({ name: 'edit_playlist', params: { playlist_name: 'default' } })
@@ -70,9 +71,9 @@ watch(route, () => {
 })
 
 const isDataValid = computed(() => {
-  if (!workingHours.value) return false
+  if (!workingHours.value || !music.value) return false
 
-  return workingHours.value.isDataValid
+  return workingHours.value.isDataValid && music.value.isDataValid
 })
 
 async function submit() {
@@ -83,13 +84,15 @@ async function submit() {
 
   const n = isDefaultMode.value ? 'default' : playlistName.value
 
-  if (!n || !playlist.value || !workingHours.value) return
+  if (!n || !playlist.value || !workingHours.value || !music.value) return
 
   const updatedData: Playlist = {
     ...playlist.value
   }
 
   updatedData.working_hours = workingHours.value.cleanedData
+  updatedData.music = music.value.cleanedData
+
   console.log(updatedData)
   await updatePlaylist(n, updatedData)
   appStore.showSuccessNotification(i18n.global.t('messages.data_saved_success'))

@@ -5,6 +5,7 @@ import type {
   WorkingHoursSchedule,
   WorkingHoursException
 } from '@/models/Playlist'
+import { i18n } from '@/main'
 import { computed, defineExpose, ref, watch } from 'vue'
 import PlaylistWorkingHoursScheduleInput from './PlaylistWorkingHoursScheduleInput.vue'
 import AppConfirmDialog from './AppConfirmDialog.vue'
@@ -67,16 +68,42 @@ watch(
   { deep: true }
 )
 
-const isDataValid = computed(() => {
-  if (useDefaultWorkingHours.value) return true
+// const isDataValid = computed(() => {
+//   if (useDefaultWorkingHours.value) return true
 
-  return rawWorkingHoursSchedule.value.reduce(
-    (accumulator, currentValue) =>
-      accumulator &&
-      !!currentValue[0].$__toml_private_datetime &&
-      !!currentValue[1].$__toml_private_datetime,
-    true
-  )
+//   return rawWorkingHoursSchedule.value.reduce(
+//     (accumulator, currentValue) =>
+//       accumulator &&
+//       !!currentValue[0].$__toml_private_datetime &&
+//       !!currentValue[1].$__toml_private_datetime,
+//     true
+//   )
+// })
+
+const validationErrors = computed(() => {
+  const result: { [i: number]: string } = {}
+  for (let index = 0; index < rawWorkingHoursSchedule.value.length; index++) {
+    const scheduleElement = rawWorkingHoursSchedule.value[index]
+    const startDateAsString = scheduleElement[0].$__toml_private_datetime
+    const endDateAsString = scheduleElement[1].$__toml_private_datetime
+
+    if (!startDateAsString || !endDateAsString) {
+      result[index] = i18n.global.t('messages.required_field')
+      continue
+    }
+
+    const datePrefix = '1970-01-01T'
+    const startDate = new Date(`${datePrefix}${startDateAsString}`)
+    const endDate = new Date(`${datePrefix}${endDateAsString}`)
+    if (endDate >= startDate) continue
+
+    result[index] = i18n.global.t('messages.start_time_must_not_be_greater_then_end_time')
+  }
+  return result
+})
+
+const isDataValid = computed(() => {
+  return Object.keys(validationErrors.value).length === 0
 })
 
 const cleanedData = computed(() => {
@@ -123,6 +150,7 @@ function addExceptionRow() {
           v-if="getDayIndex(pairIndex, index) < 7"
           :dayIndex="getDayIndex(pairIndex, index)"
           :workingHoursSchedule="rawWorkingHoursSchedule"
+          :validationError="validationErrors[getDayIndex(pairIndex, index)]"
         ></PlaylistWorkingHoursScheduleInput>
       </div>
     </div>
