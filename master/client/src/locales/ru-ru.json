@@ -5,8 +5,9 @@
     "validation_error": "Данные формы не валидны",
     "data_saved_success": "Данные формы успешно сохранены",
     "start_date_must_not_be_greater_then_end_date": "Дата начала не должна превышать дату окончания интервала",
-    "start_time_must_not_be_greater_then_end_time": "Время начала не должно превышать времени окончания",
-    "required_field": "Обязательное поле"
+    "start_time_must_not_be_greater_then_end_time": "Время начала не должно превышать время окончания",
+    "required_field": "Обязательное поле",
+    "date_must_be_unique": "Дата должна быть уникальной"
   },
   "controls": {
     "node_filter": "Фильтр...",

@@ -80,30 +80,65 @@ watch(
 //   )
 // })
 
-const validationErrors = computed(() => {
+function validateTwoStringDates(
+  startDateAsString: string,
+  endDateAsString: string
+): string | undefined {
+  if (!startDateAsString || !endDateAsString) {
+    return i18n.global.t('messages.required_field')
+  }
+
+  const datePrefix = '1970-01-01T'
+  const startDate = new Date(`${datePrefix}${startDateAsString}`)
+  const endDate = new Date(`${datePrefix}${endDateAsString}`)
+  if (endDate >= startDate) return
+
+  return i18n.global.t('messages.start_time_must_not_be_greater_then_end_time')
+}
+
+function validateScheduleElement(element: WorkingHoursScheduleElement): string | undefined {
+  const startDateAsString = element[0].$__toml_private_datetime
+  const endDateAsString = element[1].$__toml_private_datetime
+
+  return validateTwoStringDates(startDateAsString, endDateAsString)
+}
+
+const workingHoursValidationErrors = computed(() => {
   const result: { [i: number]: string } = {}
   for (let index = 0; index < rawWorkingHoursSchedule.value.length; index++) {
-    const scheduleElement = rawWorkingHoursSchedule.value[index]
-    const startDateAsString = scheduleElement[0].$__toml_private_datetime
-    const endDateAsString = scheduleElement[1].$__toml_private_datetime
+    const validationErrorText = validateScheduleElement(rawWorkingHoursSchedule.value[index])
+    if (validationErrorText) {
+      result[index] = validationErrorText
+    }
+  }
+  return result
+})
 
-    if (!startDateAsString || !endDateAsString) {
-      result[index] = i18n.global.t('messages.required_field')
+const workingHoursExceptionValidationErrors = computed(() => {
+  const result: { [i: number]: string } = {}
+  const uniqueDates = new Set()
+  for (let index = 0; index < rawWorkingHoursExceptions.value.length; index++) {
+    const row = rawWorkingHoursExceptions.value[index]
+    const validationErrorText = validateTwoStringDates(row[1], row[2])
+    if (validationErrorText) {
+      result[index] = validationErrorText
       continue
     }
 
-    const datePrefix = '1970-01-01T'
-    const startDate = new Date(`${datePrefix}${startDateAsString}`)
-    const endDate = new Date(`${datePrefix}${endDateAsString}`)
-    if (endDate >= startDate) continue
-
-    result[index] = i18n.global.t('messages.start_time_must_not_be_greater_then_end_time')
+    const rowDate = row[0]
+    if (uniqueDates.has(rowDate)) {
+      result[index] = i18n.global.t('messages.date_must_be_unique')
+    }
+    uniqueDates.add(rowDate)
   }
   return result
 })
 
 const isDataValid = computed(() => {
-  return Object.keys(validationErrors.value).length === 0
+  return (
+    Object.keys(workingHoursValidationErrors.value).length === 0 &&
+    Object.keys(workingHoursExceptionValidationErrors.value).length === 0
+  )
 })
 
 const cleanedData = computed(() => {
@@ -150,7 +185,7 @@ function addExceptionRow() {
           v-if="getDayIndex(pairIndex, index) < 7"
           :dayIndex="getDayIndex(pairIndex, index)"
           :workingHoursSchedule="rawWorkingHoursSchedule"
-          :validationError="validationErrors[getDayIndex(pairIndex, index)]"
+          :validationError="workingHoursValidationErrors[getDayIndex(pairIndex, index)]"
         ></PlaylistWorkingHoursScheduleInput>
       </div>
     </div>
@@ -172,13 +207,28 @@ function addExceptionRow() {
 
     <div class="row" v-for="(exception, index) of rawWorkingHoursExceptions" :key="index">
       <div class="col">
-        <input type="date" v-model="exception[0]" />
+        <input
+          type="date"
+          v-model="exception[0]"
+          :class="{ error: workingHoursExceptionValidationErrors[index] }"
+          :title="workingHoursExceptionValidationErrors[index]"
+        />
       </div>
       <div class="col">
-        <input type="time" v-model="exception[1]" />
+        <input
+          type="time"
+          v-model="exception[1]"
+          :class="{ error: workingHoursExceptionValidationErrors[index] }"
+          :title="workingHoursExceptionValidationErrors[index]"
+        />
       </div>
       <div class="col">
-        <input type="time" v-model="exception[2]" />
+        <input
+          type="time"
+          v-model="exception[2]"
+          :class="{ error: workingHoursExceptionValidationErrors[index] }"
+          :title="workingHoursExceptionValidationErrors[index]"
+        />
       </div>
       <div class="col">
         <button type="button" class="button error" @click="deleteExceptionRow(index)">

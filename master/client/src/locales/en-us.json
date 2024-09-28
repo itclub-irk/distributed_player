@@ -6,7 +6,8 @@
     "data_saved_success": "Form data saved successfully",
     "start_date_must_not_be_greater_then_end_date": "The start date must not be greater than the end date of the interval",
     "start_time_must_not_be_greater_then_end_time": "The start time must not be greater than the end time",
-    "required_field": "Required field"
+    "required_field": "Required field",
+    "date_must_be_unique": "The date must be unique"
   },
   "controls": {
     "node_filter": "Filter...",
