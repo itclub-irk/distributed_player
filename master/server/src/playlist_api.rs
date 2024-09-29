@@ -1,3 +1,5 @@
+use crate::{DEFAULT_PLAYLIST_NAME, PLAYLISTS_DIR_NAME, PLAYLIST_FILE_EXTENTION};
+
 use crate::{config::NodeConfig, playlist::Playlist, toml_file::ReadAndWriteTOMLFile};
 use axum::{extract, http::StatusCode, Json};
 use regex::Regex;
@@ -8,10 +10,6 @@ use std::{
     fs::{self},
     sync::Arc,
 };
-
-static PLAYLISTS_DIR_NAME: &'static str = "cfg";
-static DEFAULT_PLAYLIST_NAME: &'static str = "playlist";
-static PLAYLIST_FILE_EXTENTION: &'static str = "toml";
 
 fn get_configs_folder_path(config: &NodeConfig) -> path::PathBuf {
     path::Path::join(

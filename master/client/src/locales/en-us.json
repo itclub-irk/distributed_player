@@ -25,7 +25,11 @@
     "delete_interval": "Delete interval",
     "add_interval": "Add interval",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "choose": "Choose",
+    "cancel": "Cancel",
+    "start_jingle": "Start jingle",
+    "end_jingle": "End jingle"
   },
   "menus": {
     "schedule": "Schedule",
@@ -60,6 +64,9 @@
     "no_intervals_added": "No intervals added",
     "no_directories_added": "No directories added",
     "confirm_action": "Confirm action",
-    "are_you_shure_you_want_to_do_this": "Are you shure you want to do this"
+    "are_you_shure_you_want_to_do_this": "Are you shure you want to do this",
+    "choose_file": "Choose file",
+    "choose_folder": "Choose folder",
+    "advertizement": "Advertizement"
   }
 }

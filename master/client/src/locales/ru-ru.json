@@ -25,7 +25,11 @@
     "delete_interval": "Удалить интервал",
     "add_interval": "Добавить интервал",
     "yes": "Да",
-    "no": "Нет"
+    "no": "Нет",
+    "choose": "Выбрать",
+    "cancel": "Отмена",
+    "start_jingle": "Начальная заставка",
+    "end_jingle": "Конечная заставка"
   },
   "menus": {
     "schedule": "Расписание",
@@ -60,6 +64,9 @@
     "no_intervals_added": "Нет добавленных интервалов",
     "no_directories_added": "Нет добавленных директорий",
     "confirm_action": "Подтвердить действие",
-    "are_you_shure_you_want_to_do_this": "Вы уверены что хотите выполнить это действие"
+    "are_you_shure_you_want_to_do_this": "Вы уверены что хотите выполнить это действие",
+    "choose_file": "Выберите файл",
+    "choose_folder": "Выберите директорию",
+    "advertizement": "Реклама"
   }
 }

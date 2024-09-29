@@ -1,5 +1,6 @@
 mod auth_api;
 mod config;
+mod file_api;
 mod password;
 mod playlist;
 mod playlist_api;
@@ -23,6 +24,10 @@ use tower_http::services::ServeDir;
 
 const CONFIG_FILE_NAME: &'static str = "node_config.toml";
 const HTTP_SERVER_BIND_ADDRESS: &'static str = "0.0.0.0:3000";
+pub const PLAYLISTS_DIR_NAME: &'static str = "cfg";
+pub const LOGS_DIR_NAME: &'static str = "logs";
+pub const DEFAULT_PLAYLIST_NAME: &'static str = "playlist";
+pub const PLAYLIST_FILE_EXTENTION: &'static str = "toml";
 
 fn main() {
     // configure_logger();
@@ -107,6 +112,13 @@ async fn run_server(node_config: Arc<NodeConfig>) {
         .route(
             "/api/playlist/:playlist_name",
             delete(playlist_api::delete_playlist).route_layer(middleware::from_fn_with_state(
+                node_config.clone(),
+                auth_api::auth_required,
+            )),
+        )
+        .route(
+            "/api/file",
+            get(file_api::get_list_files).route_layer(middleware::from_fn_with_state(
                 node_config.clone(),
                 auth_api::auth_required,
             )),

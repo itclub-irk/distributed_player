@@ -26,3 +26,4 @@ tower-http = { version = "0.5", features = ["fs", "cors"] }
 toml-datetime-compat = { version = "0.3.0", features = ["chrono"] }
 regex = "1.10.6"
 http = "1.1.0"
+walkdir = "2.5.0"

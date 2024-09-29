@@ -7,6 +7,7 @@ import { i18n } from '@/main'
 import { getPlaylistByName, updatePlaylist } from '@/services/playlistService'
 import type { Playlist } from '@/models/Playlist'
 import PlaylistMusic from '@/components/PlaylistMusic.vue'
+import PlaylistAdvertizement from '@/components/PlaylistAdvertizement.vue'
 
 const appStore = useAppStore()
 const route = useRoute()
@@ -93,7 +94,6 @@ async function submit() {
   updatedData.working_hours = workingHours.value.cleanedData
   updatedData.music = music.value.cleanedData
 
-  console.log(updatedData)
   await updatePlaylist(n, updatedData)
   appStore.showSuccessNotification(i18n.global.t('messages.data_saved_success'))
 }
@@ -125,6 +125,17 @@ async function submit() {
             :defaultMusic="defaultPlaylist.music"
             :isDefaultMode="isDefaultMode"
           ></PlaylistMusic>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-8">
+          <PlaylistAdvertizement
+            ref="advertizement"
+            :advertizement="playlist.advertizement"
+            :defaultAdvertizement="defaultPlaylist.advertizement"
+            :isDefaultMode="isDefaultMode"
+          ></PlaylistAdvertizement>
         </div>
       </div>
 

@@ -10,6 +10,7 @@ export const useAppStore = defineStore('appStore', () => {
   const notificationText = ref('')
   const notificationLevel = ref<'success' | 'error'>('success')
   const notificationTimeout = ref()
+  const choosenFilePath = ref()
 
   function showSuccessNotification(text: string) {
     showNotification(text, 'success')
@@ -36,6 +37,7 @@ export const useAppStore = defineStore('appStore', () => {
     selectedPlaylistName,
     notificationText,
     notificationLevel,
+    choosenFilePath,
     showSuccessNotification,
     showErrorNotification
   }

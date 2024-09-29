@@ -6,8 +6,19 @@ const dialog = ref<HTMLDialogElement>()
 const message = ref<string>()
 const acceptButton = ref<HTMLButtonElement>()
 const closeButton = ref<HTMLButtonElement>()
+let resolver: (value: boolean | PromiseLike<boolean>) => void
 
 defineExpose({ show })
+
+function accept() {
+  dialog.value?.close()
+  resolver(true)
+}
+
+function close() {
+  dialog.value?.close()
+  resolver(false)
+}
 
 /**
  * Show dialog
@@ -21,18 +32,7 @@ function show(msg?: string): Promise<boolean> {
   message.value = msg
   dialog.value?.showModal()
   return new Promise((resolve) => {
-    if (acceptButton.value) {
-      acceptButton.value.addEventListener('click', () => {
-        dialog.value?.close()
-        resolve(true)
-      })
-    }
-    if (closeButton.value) {
-      closeButton.value.addEventListener('click', () => {
-        dialog.value?.close()
-        resolve(false)
-      })
-    }
+    resolver = resolve
   })
 }
 </script>
@@ -46,12 +46,12 @@ function show(msg?: string): Promise<boolean> {
     </div>
     <div class="row">
       <div class="col">
-        <button ref="acceptButton" class="button error" type="button">
+        <button @click="accept" class="button error" type="button">
           {{ $t('controls.yes') }}
         </button>
       </div>
       <div class="col is-right">
-        <button ref="closeButton" class="button outline" type="button">
+        <button @click="close" class="button outline" type="button">
           {{ $t('controls.no') }}
         </button>
       </div>

@@ -237,9 +237,13 @@ function addExceptionRow() {
       </div>
     </div>
 
-    <button type="button" class="button primary outline" @click="addExceptionRow">
-      {{ $t('controls.add') }}
-    </button>
+    <div class="row">
+      <div class="col">
+        <button type="button" class="button primary outline" @click="addExceptionRow">
+          {{ $t('controls.add') }}
+        </button>
+      </div>
+    </div>
   </div>
   <AppConfirmDialog ref="confirmDialog"></AppConfirmDialog>
 </template>

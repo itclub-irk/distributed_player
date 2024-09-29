@@ -1,3 +1,5 @@
 node_config.toml
 Cargo.lock
 target
+playlist_*.toml
+.vscode

@@ -3,6 +3,7 @@ import type { Music, MusicScheduleElement } from '@/models/Playlist'
 import { i18n } from '@/main'
 import { computed, ref, watch } from 'vue'
 import AppConfirmDialog from '@/components/AppConfirmDialog.vue'
+import AppChooseFileDialog from './AppChooseFileDialog.vue'
 
 const props = defineProps<{
   music?: Music
@@ -13,6 +14,7 @@ const props = defineProps<{
 const useDefaultMusic = ref(true)
 const rawMusic = ref<Music>({ shuffle: false, schedule: [] })
 const confirmDialog = ref<typeof AppConfirmDialog>()
+const chooseFileDialog = ref<typeof AppChooseFileDialog>()
 
 watch(
   () => props.music,
@@ -67,13 +69,28 @@ async function deleteScheduleElement(elementIndex: number) {
     rawMusic.value.schedule.splice(elementIndex, 1)
 }
 
-function addDir(scheduleElement: MusicScheduleElement) {
-  scheduleElement[2].push('')
+async function addDir(scheduleElement: MusicScheduleElement) {
+  if (!chooseFileDialog.value) return
+
+  const dirs = scheduleElement[2]
+  const choosenDir = await chooseFileDialog.value.show(true, false)
+  if (choosenDir) {
+    dirs.push(choosenDir)
+  }
 }
 
 async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number) {
   if (confirmDialog.value && (await confirmDialog.value.show()))
     scheduleElement[2].splice(dirIndex, 1)
+}
+
+async function openChooseFileDialog(scheduleElement: MusicScheduleElement, dirIndex: number) {
+  if (!chooseFileDialog.value) return
+
+  const choosenDir = await chooseFileDialog.value.show(true, false)
+
+  if (!choosenDir) return
+  scheduleElement[2][dirIndex] = choosenDir
 }
 </script>
 <template>
@@ -150,7 +167,13 @@ async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number
         <div class="row">
           <div class="col">
             <p class="grouped" v-for="(dir, dirIndex) of scheduleElement[2]">
-              <input type="text" v-model="scheduleElement[2][dirIndex]" />
+              <input
+                :readonly="true"
+                class="clickable"
+                type="text"
+                v-model="scheduleElement[2][dirIndex]"
+                @click="openChooseFileDialog(scheduleElement, dirIndex)"
+              />
               <button
                 type="button"
                 class="button error"
@@ -159,18 +182,23 @@ async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number
                 {{ $t('controls.delete') }}
               </button>
             </p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <button type="button" class="button primary outline" @click="addDir(scheduleElement)">
-              {{ $t('controls.add_directory') }}
-            </button>
-          </div>
-          <div class="col is-right">
-            <button type="button" class="button error" @click="deleteScheduleElement(index)">
-              {{ $t('controls.delete_interval') }}
-            </button>
+
+            <div class="row">
+              <div class="col">
+                <button
+                  type="button"
+                  class="button primary outline"
+                  @click="addDir(scheduleElement)"
+                >
+                  {{ $t('controls.add_directory') }}
+                </button>
+              </div>
+              <div class="col is-right">
+                <button type="button" class="button error" @click="deleteScheduleElement(index)">
+                  {{ $t('controls.delete_interval') }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -184,5 +212,6 @@ async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number
     </div>
   </div>
   <AppConfirmDialog ref="confirmDialog"></AppConfirmDialog>
+  <AppChooseFileDialog ref="chooseFileDialog"></AppChooseFileDialog>
 </template>
 <style scoped></style>
