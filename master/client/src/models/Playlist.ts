@@ -30,4 +30,8 @@ export type Advertizement = {
   schedule: AdvertizementScheduleElement[]
 }
 
-export type Playlist = { working_hours?: WorkingHours; music?: Music; advertizement: Advertizement }
+export type Playlist = {
+  working_hours?: WorkingHours
+  music?: Music
+  advertizement?: Advertizement
+}

@@ -4,6 +4,7 @@ import { i18n } from '@/main'
 import { computed, ref, watch } from 'vue'
 import AppConfirmDialog from '@/components/AppConfirmDialog.vue'
 import AppChooseFileDialog from './AppChooseFileDialog.vue'
+import AppFileField from './AppFileField.vue'
 
 const props = defineProps<{
   music?: Music
@@ -83,15 +84,6 @@ async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number
   if (confirmDialog.value && (await confirmDialog.value.show()))
     scheduleElement[2].splice(dirIndex, 1)
 }
-
-async function openChooseFileDialog(scheduleElement: MusicScheduleElement, dirIndex: number) {
-  if (!chooseFileDialog.value) return
-
-  const choosenDir = await chooseFileDialog.value.show(true, false)
-
-  if (!choosenDir) return
-  scheduleElement[2][dirIndex] = choosenDir
-}
 </script>
 <template>
   <h3>{{ $t('labels.music') }}</h3>
@@ -134,11 +126,7 @@ async function openChooseFileDialog(scheduleElement: MusicScheduleElement, dirIn
       {{ $t('labels.music_schedule_description') }}
     </p>
 
-    <div
-      class="row"
-      v-for="(scheduleElement, index) of rawMusic.schedule"
-      v-if="rawMusic.schedule.length"
-    >
+    <div class="row" v-for="(scheduleElement, index) of rawMusic.schedule">
       <div class="col">
         <h4>{{ $t('labels.interval') }} №{{ index + 1 }}</h4>
         <div class="row">
@@ -166,22 +154,13 @@ async function openChooseFileDialog(scheduleElement: MusicScheduleElement, dirIn
         <p v-if="scheduleElement[2].length">{{ $t('labels.directories') }}</p>
         <div class="row">
           <div class="col">
-            <p class="grouped" v-for="(dir, dirIndex) of scheduleElement[2]">
-              <input
-                :readonly="true"
-                class="clickable"
-                type="text"
-                v-model="scheduleElement[2][dirIndex]"
-                @click="openChooseFileDialog(scheduleElement, dirIndex)"
-              />
-              <button
-                type="button"
-                class="button error"
-                @click="deleteDir(scheduleElement, dirIndex)"
-              >
-                {{ $t('controls.delete') }}
-              </button>
-            </p>
+            <AppFileField
+              v-for="(dir, dirIndex) of scheduleElement[2]"
+              :model="dir"
+              @change="(newValue) => (scheduleElement[2][dirIndex] = newValue)"
+              @delete="deleteDir(scheduleElement, dirIndex)"
+              :chooseFolder="true"
+            ></AppFileField>
 
             <div class="row">
               <div class="col">

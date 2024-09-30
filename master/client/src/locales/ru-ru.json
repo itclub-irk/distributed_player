@@ -67,6 +67,7 @@
     "are_you_shure_you_want_to_do_this": "Вы уверены что хотите выполнить это действие",
     "choose_file": "Выберите файл",
     "choose_folder": "Выберите директорию",
-    "advertizement": "Реклама"
+    "advertizement": "Реклама",
+    "advertizement_block": "Рекламный блок"
   }
 }
