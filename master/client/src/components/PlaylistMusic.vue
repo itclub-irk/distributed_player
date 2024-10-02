@@ -86,8 +86,6 @@ async function deleteDir(scheduleElement: MusicScheduleElement, dirIndex: number
 }
 </script>
 <template>
-  <h3>{{ $t('labels.music') }}</h3>
-
   <div class="row" v-if="!isDefaultMode">
     <div class="col">
       <input name="checkbox" type="checkbox" v-model="useDefaultMusic" />

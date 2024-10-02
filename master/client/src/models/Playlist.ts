@@ -20,14 +20,14 @@ export type MusicScheduleElement = [startDate: TOMLDateTime, endDate: TOMLDateTi
 
 export type Music = { shuffle: boolean; schedule: MusicScheduleElement[] }
 
-export type AdvertizementScheduleElement = {
+export type AdvertizementSchedule = {
   [s: string]: string[]
 }
 
 export type Advertizement = {
   start_jingle: string
   end_jingle: string
-  schedule: AdvertizementScheduleElement[]
+  schedule?: AdvertizementSchedule
 }
 
 export type Playlist = {

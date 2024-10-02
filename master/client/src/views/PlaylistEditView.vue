@@ -8,6 +8,7 @@ import { getPlaylistByName, updatePlaylist } from '@/services/playlistService'
 import type { Playlist } from '@/models/Playlist'
 import PlaylistMusic from '@/components/PlaylistMusic.vue'
 import PlaylistAdvertizement from '@/components/PlaylistAdvertizement.vue'
+import PlaylistPageMenu from '@/components/PlaylistPageMenu.vue'
 
 const appStore = useAppStore()
 const route = useRoute()
@@ -101,6 +102,10 @@ async function submit() {
   await updatePlaylist(n, updatedData)
   appStore.showSuccessNotification(i18n.global.t('messages.data_saved_success'))
 }
+
+const currentPage = computed(() => {
+  return appStore.currentPlaylistPage
+})
 </script>
 <template>
   <div>
@@ -108,9 +113,10 @@ async function submit() {
       <div class="row">
         <div class="col-8">
           <h2>{{ playlistName }}</h2>
+          <PlaylistPageMenu></PlaylistPageMenu>
         </div>
       </div>
-      <div class="row">
+      <div class="row" v-show="currentPage === 'working_hours'">
         <div class="col-8">
           <PlaylistWorkingHours
             ref="workingHours"
@@ -121,7 +127,7 @@ async function submit() {
         </div>
       </div>
 
-      <div class="row">
+      <div class="row" v-show="currentPage === 'music'">
         <div class="col-8">
           <PlaylistMusic
             ref="music"
@@ -132,7 +138,7 @@ async function submit() {
         </div>
       </div>
 
-      <div class="row">
+      <div class="row" v-show="currentPage === 'advertizement'">
         <div class="col-8">
           <PlaylistAdvertizement
             ref="advertizement"

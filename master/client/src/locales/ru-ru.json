@@ -29,7 +29,10 @@
     "choose": "Выбрать",
     "cancel": "Отмена",
     "start_jingle": "Начальная заставка",
-    "end_jingle": "Конечная заставка"
+    "end_jingle": "Конечная заставка",
+    "time": "Время",
+    "delete_advertizement_block": "Удалить блок",
+    "add_advertizement_block": "Добавить блок"
   },
   "menus": {
     "schedule": "Расписание",
@@ -68,6 +71,7 @@
     "choose_file": "Выберите файл",
     "choose_folder": "Выберите директорию",
     "advertizement": "Реклама",
-    "advertizement_block": "Рекламный блок"
+    "advertizement_block": "Рекламный блок",
+    "advertizement_schedule_description": "Добавьте интервалы воспроизведения рекламы. Укажите время в минутах от начала каждого часа и список директорий для воспроизведения содержащихся в них файлов"
   }
 }

@@ -4,8 +4,7 @@ import { i18n } from '@/main'
 
 const dialog = ref<HTMLDialogElement>()
 const message = ref<string>()
-const acceptButton = ref<HTMLButtonElement>()
-const closeButton = ref<HTMLButtonElement>()
+
 let resolver: (value: boolean | PromiseLike<boolean>) => void
 
 defineExpose({ show })

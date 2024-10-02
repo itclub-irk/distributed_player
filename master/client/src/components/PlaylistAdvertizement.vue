@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import type { Advertizement, AdvertizementScheduleElement } from '@/models/Playlist'
+import type { Advertizement, AdvertizementSchedule } from '@/models/Playlist'
 import { computed, ref, watch } from 'vue'
 import AppConfirmDialog from './AppConfirmDialog.vue'
 import AppChooseFileDialog from './AppChooseFileDialog.vue'
 import { i18n } from '@/main'
 import AppFileField from './AppFileField.vue'
+
+type RawAdvertizement = { start_jingle: string; end_jingle: string }
+type RawSchedule = { time: string; folders: string[] }
 
 const props = defineProps<{
   advertizement?: Advertizement
@@ -13,7 +16,12 @@ const props = defineProps<{
 }>()
 
 const useDefaultAdvertizement = ref(true)
-const rawAdvertizement = ref<Advertizement>({ start_jingle: '', end_jingle: '', schedule: [] })
+const rawAdvertizement = ref<RawAdvertizement>({
+  start_jingle: '',
+  end_jingle: ''
+})
+const rawSchedule = ref<RawSchedule[]>([])
+
 const confirmDialog = ref<typeof AppConfirmDialog>()
 const chooseFileDialog = ref<typeof AppChooseFileDialog>()
 
@@ -24,7 +32,19 @@ watch(
 
     if (!props.advertizement) return
 
-    rawAdvertizement.value = JSON.parse(JSON.stringify(props.advertizement))
+    rawAdvertizement.value = {
+      start_jingle: props.advertizement.start_jingle,
+      end_jingle: props.advertizement.end_jingle
+    }
+
+    const schedule: RawSchedule[] = []
+    if (props.advertizement.schedule) {
+      for (const [time, folders] of Object.entries(props.advertizement.schedule)) {
+        schedule.push({ time, folders })
+      }
+    }
+
+    rawSchedule.value = schedule.sort((a, b) => a.time.localeCompare(b.time))
   },
   { deep: true }
 )
@@ -38,14 +58,40 @@ const cleanedData = computed(() => {
 
   if (useDefaultAdvertizement.value) return undefined
 
-  return rawAdvertizement.value
+  const res: Advertizement = { ...rawAdvertizement.value, schedule: {} }
+  for (let scheduleElement of rawSchedule.value) {
+    res.schedule![scheduleElement.time] = scheduleElement.folders
+  }
+  return res
 })
 
 defineExpose({ isDataValid, cleanedData })
+
+function addScheduleElement() {
+  rawSchedule.value.push({ time: '00:01', folders: [] })
+}
+
+async function deleteScheduleElement(elementIndex: number) {
+  if (confirmDialog.value && (await confirmDialog.value.show()))
+    rawSchedule.value.splice(elementIndex, 1)
+}
+
+async function addDir(scheduleElement: RawSchedule) {
+  if (!chooseFileDialog.value) return
+
+  const dirs = scheduleElement.folders
+  const choosenDir = await chooseFileDialog.value.show(true, false)
+  if (choosenDir) {
+    dirs.push(choosenDir)
+  }
+}
+
+async function deleteDir(scheduleElement: RawSchedule, dirIndex: number) {
+  if (confirmDialog.value && (await confirmDialog.value.show()))
+    scheduleElement.folders.splice(dirIndex, 1)
+}
 </script>
 <template>
-  <h3>{{ $t('labels.advertizement') }}</h3>
-
   <div class="row" v-if="!isDefaultMode">
     <div class="col">
       <input name="checkbox" type="checkbox" v-model="useDefaultAdvertizement" />
@@ -77,9 +123,54 @@ defineExpose({ isDataValid, cleanedData })
       </div>
     </div>
 
-    <div class="row" v-for="(scheduleElement, _, index) of rawAdvertizement.schedule">
+    <p>
+      {{ $t('labels.advertizement_schedule_description') }}
+    </p>
+
+    <div class="row" v-for="(scheduleElement, index) of rawSchedule">
       <div class="col">
         <h4>{{ $t('labels.advertizement_block') }} №{{ index + 1 }}</h4>
+        <div class="row">
+          <div class="col">
+            <label>{{ $t('controls.time') }}</label>
+            <input type="time" min="00:01" max="00:59" v-model="scheduleElement.time" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <AppFileField
+              v-for="(dir, dirIndex) of scheduleElement.folders"
+              :model="dir"
+              @change="(newValue) => (scheduleElement.folders[dirIndex] = newValue)"
+              @delete="deleteDir(scheduleElement, dirIndex)"
+              :chooseFolder="true"
+            ></AppFileField>
+
+            <div class="row">
+              <div class="col">
+                <button
+                  type="button"
+                  class="button primary outline"
+                  @click="addDir(scheduleElement)"
+                >
+                  {{ $t('controls.add_directory') }}
+                </button>
+              </div>
+              <div class="col is-right">
+                <button type="button" class="button error" @click="deleteScheduleElement(index)">
+                  {{ $t('controls.delete_advertizement_block') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <button type="button" class="button primary outline" @click="addScheduleElement">
+          {{ $t('controls.add') }}
+        </button>
       </div>
     </div>
   </div>

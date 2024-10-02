@@ -29,7 +29,10 @@
     "choose": "Choose",
     "cancel": "Cancel",
     "start_jingle": "Start jingle",
-    "end_jingle": "End jingle"
+    "end_jingle": "End jingle",
+    "time": "Time",
+    "delete_advertizement_block": "Delete block",
+    "add_advertizement_block": "Add block"
   },
   "menus": {
     "schedule": "Schedule",
@@ -68,6 +71,7 @@
     "choose_file": "Choose file",
     "choose_folder": "Choose folder",
     "advertizement": "Advertizement",
-    "advertizement_block": "Advertizement block"
+    "advertizement_block": "Advertizement block",
+    "advertizement_schedule_description": "Add advertizement intervals and directories"
   }
 }

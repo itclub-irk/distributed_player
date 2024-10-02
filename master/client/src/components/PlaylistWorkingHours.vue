@@ -2,11 +2,10 @@
 import type {
   WorkingHours,
   WorkingHoursScheduleElement,
-  WorkingHoursSchedule,
-  WorkingHoursException
+  WorkingHoursSchedule
 } from '@/models/Playlist'
 import { i18n } from '@/main'
-import { computed, defineExpose, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import PlaylistWorkingHoursScheduleInput from './PlaylistWorkingHoursScheduleInput.vue'
 import AppConfirmDialog from './AppConfirmDialog.vue'
 
@@ -67,18 +66,6 @@ watch(
   },
   { deep: true }
 )
-
-// const isDataValid = computed(() => {
-//   if (useDefaultWorkingHours.value) return true
-
-//   return rawWorkingHoursSchedule.value.reduce(
-//     (accumulator, currentValue) =>
-//       accumulator &&
-//       !!currentValue[0].$__toml_private_datetime &&
-//       !!currentValue[1].$__toml_private_datetime,
-//     true
-//   )
-// })
 
 function validateTwoStringDates(
   startDateAsString: string,
@@ -169,7 +156,6 @@ function addExceptionRow() {
 }
 </script>
 <template>
-  <h3>{{ $t('labels.working_hours') }}</h3>
   <div class="row" v-if="!isDefaultMode">
     <div class="col">
       <input name="checkbox" type="checkbox" v-model="useDefaultWorkingHours" />

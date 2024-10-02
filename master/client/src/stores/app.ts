@@ -1,3 +1,4 @@
+import type { PlaylistPage } from '@/models/PlaylistPage'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -11,6 +12,8 @@ export const useAppStore = defineStore('appStore', () => {
   const notificationLevel = ref<'success' | 'error'>('success')
   const notificationTimeout = ref()
   const choosenFilePath = ref()
+
+  const currentPlaylistPage = ref<PlaylistPage>('working_hours')
 
   function showSuccessNotification(text: string) {
     showNotification(text, 'success')
@@ -38,6 +41,7 @@ export const useAppStore = defineStore('appStore', () => {
     notificationText,
     notificationLevel,
     choosenFilePath,
+    currentPlaylistPage,
     showSuccessNotification,
     showErrorNotification
   }
